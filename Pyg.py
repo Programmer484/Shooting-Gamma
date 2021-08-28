@@ -11,28 +11,39 @@ img_dir = path.join('img')
 #REMEMBER to make the 'workspace' big enough so you can see the entire game window, or else the player will be cut off.
 class Game():
     def __init__(self, imagelist, width, height):
+        #Screen size variables    
         self.width = width
         self.height = height
+        #Creating the window
         self.window = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption('Shooting Gamma')
-        #For the map the players will play in
+        #Arena the players will play in
         self.arena = 0
-        #Determines what screen to show
+        #Determines what screen to show(E.g setup, menu, Game over, etc)
         self.screen = 'play'
+        #List of images for background
         self.imagelist = imagelist
+        #Takes image out of imagelist according to self.arena value
         self.image = pygame.transform.scale(self.imagelist[self.arena],
                                             (self.width, self.height))
+        #Gets rectangle with the dimensions of the image 
         self.image_rect = self.image.get_rect()
+        #Clock for determing how quickly the frames update
         self.clock = pygame.time.Clock()
         self.FPS = 60
+        pygame.key.set_repeat(60)
+        #Restart variable is for determining whether or not the player wants to restart the game
         self.running = True
         self.restart = True
         self.winner = None
-        pygame.key.set_repeat(60)
+        
 
     def update(self):
+        #Draw background
         self.window.blit(self.image, self.image_rect)
 
+
+    #Sets platform positions based on self.arena value
     def reset(self):
         if self.arena == 0:
             p1 = Obstacle(platform1, 50, 200)
@@ -42,10 +53,6 @@ class Game():
             p1 = Obstacle(platform1, 150, 200)
             p2 = Obstacle(platform1, 225, 250)
             p3 = Obstacle(platform1, 300, 300)
-
-
-#Also, I don't know why, but the longer the game runs, the more lag there seems to be.  At least that's what I noticed with my computer.
-#It's not like the code is adding more sprites as the game goes...
 
     def mainloop(self):
         while True:
