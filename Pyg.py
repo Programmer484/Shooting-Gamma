@@ -1,7 +1,11 @@
+
 idk how to use
+this is what I don't understand
+
 import pygame
 import time
 from os import path
+huh
 
 pygame.init()
 pygame.mixer.init()
