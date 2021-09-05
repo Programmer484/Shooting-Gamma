@@ -1,4 +1,5 @@
 import pygame
+import time
 from os import path
 
 pygame.init()
@@ -212,11 +213,12 @@ class Player(pygame.sprite.Sprite):
         self.shooting = True
         #Jump variables
         self.jumpCount = 0
+        
         self.canJump = True
         self.gravity = 10
         #Block placement variables
         self.blockCount = 0
-        self.maxblock = 5
+        self.maxblock = 10
         self.blockready = 0
         #Shooting variables
         #-1 = facing left, 1 = facing right
@@ -291,19 +293,20 @@ class Player(pygame.sprite.Sprite):
             self.canJump = False
 
         for o in obstacles:
-            #Still doesn't work if moving onto another block at the same level. Probably has to do with within x and within Y funcs
             if collide_bottom(self, o) and self.jumpCount == 0:
                 if o.rect.top - self.rect.bottom >= 0:
                     self.speedy = o.rect.top - self.rect.bottom
-                    self.canJump = True
                 else:
                     self.rect.bottom = o.rect.top
                     self.speedy = 0
-                    self.canJump = True
+                self.canJump = True
 
             if collide_top(self, o):
                 if o.rect.bottom - self.rect.top <= 0:
                     self.speedy = o.rect.bottom - self.rect.top
+                else:
+                    self.rect.top = o.rect.bottom
+                    self.speedy = self.gravity
                 self.canJump = False
 
             if collide_left(self, o):
