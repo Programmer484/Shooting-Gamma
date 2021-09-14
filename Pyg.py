@@ -1,12 +1,11 @@
 import pygame
-import time
-from os import path
+import os
 
 pygame.init()
 pygame.mixer.init()
 #Creates a path that just makes it easier to access files(instead of typing smtg like 'c://user/desktop/pygame/image.png')
 #path.dirname(__file__) gets the parent directory of wherever the image resides(e.g c://user/desktop/pygame)
-img_dir = path.join('img')
+img_dir = os.path.join('img')
 
 
 #REMEMBER to make the 'workspace' big enough so you can see the entire game window, or else the player will be cut off.
@@ -21,7 +20,7 @@ class Game():
         #Arena the players will play in
         self.arena = 0
         #Determines what screen to show(E.g setup, menu, Game over, etc)
-        self.screen = 'play'
+        self.screen = 'setup'
         #List of images for background
         self.imagelist = imagelist
         #Takes image out of imagelist according to self.arena value
@@ -62,13 +61,14 @@ class Game():
                 pygame.quit()
                 break
             if self.screen == 'setup':
-                #Player 1
+              #Need to change the buttons so it shows which keys are assigned to which controls
+                #Player 1 ctrls
                 Left1 = button(self.window, (390, 300), "Left")
                 Right1 = button(self.window, (490, 300), "Right")
                 Jump1 = button(self.window, (440, 240), "Jump")
-                #Block1 = button(self.window, (440, 240), "Block")
+                #Block1 = button(self.window, (340, 240), "Block")
                 #Shoot1 = button(self.window, (440, 240), "Shoot")
-                #Player 2
+                #Player 2 ctrls
                 Left2 = button(self.window, (90, 300), "Left")
                 Right2 = button(self.window, (190, 300), "Right")
                 Jump2 = button(self.window, (140, 240), "Jump")
@@ -76,38 +76,40 @@ class Game():
                 #Shoot2 = button(self.window, (440, 240), "Shoot")
 
                 start = button(self.window, (0, 0), "Start")
-                #Sorry for the inefficiencyyy
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        if Left1.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
-                            player1.left = k
-                        elif Right1.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
-                            player1.right = k
-                        elif Jump1.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
-                            player1.jump = k
-                        #elif Block1.collidepoint(pygame.mouse.get_pos()):
-                        #    k = keyselect()
-                        #elif Shoot1.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
+                if 'MOUSEDOWN' in getinputs:
+                    if Left1.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player1.left = k
+                    elif Right1.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player1.right = k
+                    elif Jump1.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player1.jump = k
+                    #elif Block1.collidepoint(pygame.mouse.get_pos()):
+                    #    k = keyselect()
+                    #    player1.block = k
+                    #elif Shoot1.collidepoint(pygame.mouse.get_pos()):
+                    #    k = keyselect()
+                    #    player1.shoot = k
 
-                        elif Left2.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
-                            #player2.left = k
-                        elif Right2.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
-                            #player2.right = k
-                        elif Jump2.collidepoint(pygame.mouse.get_pos()):
-                            k = keyselect()
-                            #player2.jump = k
-                        #elif Block2.collidepoint(pygame.mouse.get_pos()):
-                        #    k = keyselect()
-                        #elif Shoot2.collidepoint(pygame.mouse.get_pos()):
-                        #    k = keyselect()
-                        elif start.collidepoint(pygame.mouse.get_pos()):
-                            self.screen = 'play'
+                    elif Left2.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player2.left = k
+                    elif Right2.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player2.right = k
+                    elif Jump2.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player2.jump = k
+                    #elif Block2.collidepoint(pygame.mouse.get_pos()):
+                    #    k = keyselect()
+                    #    player2.block = k
+                    #elif Shoot2.collidepoint(pygame.mouse.get_pos()):
+                    #    k = keyselect()
+                    #    player2.shoot = k
+                    elif start.collidepoint(pygame.mouse.get_pos()):
+                        self.screen = 'play'
 
             elif self.screen == 'menu':
                 print('''You hacked the code. The menu doesn't even exist''')
@@ -119,12 +121,13 @@ class Game():
                 self.update()
                 all_sprites.update()
                 all_sprites.draw(self.window)
+
                 if player1.hitpoints <= 0:
                     self.screen = 'endgame'
                     self.winner = 'player2'
-                #elif player2.hitpoints == 0:
-                #  self.screen = 'endgame'
-                #  self.winner = 'player1'
+                elif player2.hitpoints <= 0:
+                  self.screen = 'endgame'
+                  self.winner = 'player1'
 
             elif self.screen == 'endgame':
                 #Just so we can access this from outside the Game Class
@@ -182,16 +185,30 @@ class Block(Obstacle):
         self.rect.y = y
         self.hitpoints = hitpoints
 
+
     def update(self):
         for projectile in projectiles:
           if pygame.Rect.colliderect(projectile.rect, self.rect):
             self.hitpoints += projectile.damage
         if self.hitpoints < 0:
           self.kill()
+
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self, image, x, y, width, height):
+    def __init__(self, x, y, scale, color):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(image, (width, height))
+        #Animation variables
+        self.color = color
+        self.imagelist = []
+        self.frame_index = 0
+        num_of_frames = len(os.listdir(f'img/player/{self.color}'))
+        for i in range(num_of_frames):
+            img = pygame.image.load(f'img/player/{self.color}/{i}.png')
+            img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale))).convert_alpha()
+            img.set_colorkey((255, 255, 255))
+            self.imagelist.append(img)
+        self.image = self.imagelist[self.frame_index]
+        #Player Body variables
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -208,17 +225,15 @@ class Player(pygame.sprite.Sprite):
         self.left = pygame.K_LEFT
         self.right = pygame.K_RIGHT
         self.block = pygame.K_DOWN
-        self.jump = pygame.K_SPACE
+        self.jump = pygame.K_UP
         self.shoot = pygame.K_0
-        self.shooting = True
         #Jump variables
         self.jumpCount = 0
-        
         self.canJump = True
         self.gravity = 10
         #Block placement variables
         self.blockCount = 0
-        self.maxblock = 10
+        self.maxblock = 5
         self.blockready = 0
         #Shooting variables
         #-1 = facing left, 1 = facing right
@@ -227,7 +242,9 @@ class Player(pygame.sprite.Sprite):
 
         all_sprites.add(self)
         players.add(self)
-
+    
+    
+    
     def update(self):
         #pygame.draw.rect(
         #    Arena.window, (0, 255, 255),
@@ -279,8 +296,12 @@ class Player(pygame.sprite.Sprite):
         else:
             self.speedy = self.gravity
         self.Collisions()
+        self.Animate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+
+
+
 
     def Collisions(self):
         if self.rect.bottom + self.speedy >= Arena.height:
@@ -316,8 +337,21 @@ class Player(pygame.sprite.Sprite):
             if collide_right(self, o):
                 if o.rect.left - self.rect.right >= 0:
                     self.speedx = o.rect.left - self.rect.right
+      
+      
+      
+    def Animate(self):
+        if self.facing == -1 and self.speedx < 0:
+            self.frame_index = 1
+        elif self.facing == 1 and self.speedx > 0:
+            self.frame_index = 2
+        else:
+            self.frame_index = 0
+        self.image = self.imagelist[self.frame_index]
+        
 
 #I'm thinking we should have a Gun Class, so we can make different types of guns later on.
+
 
 
 class Gun(pygame.sprite.Sprite):
@@ -373,16 +407,6 @@ def input():
         if event.type == pygame.QUIT:
             toreturn.append("RETURN")
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                toreturn.append("UP")
-            if event.key == pygame.K_DOWN:
-                toreturn.append("DOWN")
-            if event.key == pygame.K_LEFT:
-                toreturn.append("LEFT")
-            if event.key == pygame.K_RIGHT:
-                toreturn.append("RIGHT")
-            if event.key == pygame.K_SPACE:
-                toreturn.append("JUMP")
 
             if event.key == pygame.K_F4 and alt:
                 toreturn.append("RETURN")
@@ -390,11 +414,14 @@ def input():
                 toreturn.append("RETURN")
             if event.key == pygame.K_ESCAPE:
                 toreturn.append("RETURN")
+
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             mousexy = pygame.mouse.get_pos()
             x = mousexy[0]
             y = mousexy[1]
-            toreturn.append(["MOUSE", x, y])
+            #toreturn.append(["MOUSE", x, y])
+            toreturn.append('MOUSEDOWN')
     #print(toreturn)
     return toreturn
 
@@ -413,8 +440,7 @@ def keyselect():
 
 
 #Collision detection
-#
-#
+
 def within_x(object1, object2):
     #Returns whether a given object is overlapping with player sprite.
     if (object1.rect.right > object2.rect.left and object1.rect.right < object2.rect.right)\
@@ -481,25 +507,28 @@ def button(screen, position, text):
     return screen.blit(text_render, (x, y))
 
 
-background = pygame.image.load(path.join(img_dir, "background.png"))
-images = [background, background]
-Arena = Game(images, 600, 400)
+background = pygame.image.load(os.path.join(img_dir, "background.png"))
+backgroundimages = [background, background]
+Arena = Game(backgroundimages, 600, 400)
 
 #Game Pictures
 
-platform1 = pygame.image.load(path.join(img_dir, "platform1.png")).convert()
-player = pygame.image.load(path.join(img_dir, "player.png")).convert()
-block1 = pygame.image.load(path.join(img_dir, "block.png")).convert()
-gun = pygame.image.load(path.join(img_dir, "gun.png")).convert_alpha()
+platform1 = pygame.image.load(os.path.join(img_dir, "platform1.png")).convert()
+block1 = pygame.image.load(os.path.join(img_dir, "block.png")).convert()
+gun = pygame.image.load(os.path.join(img_dir, "gun.png")).convert_alpha()
 
-#Makes a group we can put sprites in.
+
+
+#GROUPS
 obstacles = pygame.sprite.Group()
 players = pygame.sprite.Group()
 guns = pygame.sprite.Group()
 projectiles = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
-player1 = Player(player, 100, 300, 40, 60)
-player2 = Player(block1, 200, 100, 40, 60)
+
+
+player1 = Player(0, 0, 1, 'blue')
+player2 = Player(200, 0, 1, 'red')
 gun1 = Gun(player1, 40, 20, gun, Arena.FPS/2)
 
 Arena.mainloop()
