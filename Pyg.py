@@ -66,13 +66,13 @@ class Game():
                 Left1 = button(self.window, (390, 300), "Left")
                 Right1 = button(self.window, (490, 300), "Right")
                 Jump1 = button(self.window, (440, 240), "Jump")
-                #Block1 = button(self.window, (340, 240), "Block")
+                Block1 = button(self.window, (320, 240), "Block")
                 #Shoot1 = button(self.window, (440, 240), "Shoot")
                 #Player 2 ctrls
                 Left2 = button(self.window, (90, 300), "Left")
                 Right2 = button(self.window, (190, 300), "Right")
                 Jump2 = button(self.window, (140, 240), "Jump")
-                #Block2 = button(self.window, (440, 240), "Block")
+                Block2 = button(self.window, (20, 240), "Block")
                 #Shoot2 = button(self.window, (440, 240), "Shoot")
 
                 start = button(self.window, (0, 0), "Start")
@@ -86,9 +86,9 @@ class Game():
                     elif Jump1.collidepoint(pygame.mouse.get_pos()):
                         k = keyselect()
                         player1.jump = k
-                    #elif Block1.collidepoint(pygame.mouse.get_pos()):
-                    #    k = keyselect()
-                    #    player1.block = k
+                    elif Block1.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player1.block = k
                     #elif Shoot1.collidepoint(pygame.mouse.get_pos()):
                     #    k = keyselect()
                     #    player1.shoot = k
@@ -102,9 +102,9 @@ class Game():
                     elif Jump2.collidepoint(pygame.mouse.get_pos()):
                         k = keyselect()
                         player2.jump = k
-                    #elif Block2.collidepoint(pygame.mouse.get_pos()):
-                    #    k = keyselect()
-                    #    player2.block = k
+                    elif Block2.collidepoint(pygame.mouse.get_pos()):
+                        k = keyselect()
+                        player2.block = k
                     #elif Shoot2.collidepoint(pygame.mouse.get_pos()):
                     #    k = keyselect()
                     #    player2.shoot = k
