@@ -233,11 +233,12 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 10
         #Block placement variables
         self.blockCount = 0
-        self.maxblock = 5
+        self.maxblock = 25
         self.blockready = 0
         #Shooting variables
         #-1 = facing left, 1 = facing right
         self.facing = 1
+        self.flip = False
         self.shooting = False
 
         all_sprites.add(self)
@@ -299,6 +300,10 @@ class Player(pygame.sprite.Sprite):
         self.Animate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+        if self.facing == -1:
+            self.flip = True
+        else:
+            self.flip = False
 
 
 
@@ -357,13 +362,16 @@ class Player(pygame.sprite.Sprite):
 class Gun(pygame.sprite.Sprite):
     def __init__(self, player, width, height, costume, firerate):
         pygame.sprite.Sprite.__init__(self)
+        #Image variables
         img = costume
-        self.image = pygame.transform.scale(img, (width, height))
-        self.image.set_colorkey((0, 0, 0))
+        self.img = pygame.transform.scale(img, (width, height))
+        self.img.set_colorkey((0, 0, 0))
+        self.image = self.img
         self.rect = self.image.get_rect()
-
         self.player = player
-        #self.facing = self.player.facing
+        #Animation variables
+        self.facing = self.player.facing
+        #Gun attribute variables
         self.firerate = firerate
         self.firerateClock = self.firerate
         self.player = player
@@ -372,20 +380,31 @@ class Gun(pygame.sprite.Sprite):
         all_sprites.add(self)
 
     def update(self):
-      #Gun position in relation to player. Ignore the direction it's currently facing.
+        #Position + Animation
         self.facing = self.player.facing
-        self.rect.centerx = self.player.rect.centerx + self.facing * (self.player.rect.width/2 + 25)
+        self.Animate()
+        if self.facing == -1:
+            self.rect.right = self.player.rect.left
+        else:
+            self.rect.left = self.player.rect.right
         self.rect.centery = self.player.rect.centery
-
-
         if self.player.shooting == True and self.firerateClock == 0:
-            if self.facing == 1:
-              print('shoot')
-            else:
-              print('why did you shoot yourself?')
+            #Shoot command which creates bullets
+            #
+            #
             self.firerateClock = self.firerate
         if self.firerateClock > 0:
             self.firerateClock -= 1
+
+
+    def Animate(self):
+        self.image = pygame.transform.flip(self.img, self.player.flip, False)
+    
+
+    def Shoot(self):
+        pass
+
+            
 
 
 class Projectile(Gun):
